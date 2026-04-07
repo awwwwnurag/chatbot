@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 
-const ChatSchema=new mongoose.Schema({
-    userId:{type:String, ref:'User',required:true},
+const ChatSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     userName:{type:String,required:true},
     name:{type:String, required:true},
     messages:[

@@ -112,6 +112,10 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: "Email and password are required" });
+    }
+
     // Find user by email
     const user = await User.findOne({ email });
 
@@ -126,6 +130,11 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
+    if (!process.env.JWT_SECRET) {
+        console.error("CRITICAL ERROR: JWT_SECRET is not defined in environment variables");
+        return res.status(500).json({ success: false, message: "Server configuration error" });
+    }
+
     const token = generateToken(user._id);
 
     res.json({
@@ -133,6 +142,7 @@ export const loginUser = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
