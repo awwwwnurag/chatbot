@@ -20,7 +20,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // MIDDLEWARE
-app.use(cors());
+// More robust CORS for Vercel
+app.use(cors({
+    origin: true, // Allow all origins in dev, or specify your vercel domain here
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Manual handle for pre-flight (OPTIONS) requests - CRITICAL for some Vercel setups
+app.options('*', cors());
 
 // Special handling for Stripe webhooks (must be BEFORE express.json)
 app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
@@ -34,12 +43,16 @@ const ensureDBConnection = async (req, res, next) => {
         await connectDB();
         next();
     } catch (error) {
-        console.error('Database connection failed:', error.message);
-        res.status(500).json({ success: false, message: 'Internal server error: Database connection failed' });
+        console.error('DATABASE CONNECTION ERROR:', error.message);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Database connection failed. Check your MONGODB_URI and IP whitelist.',
+            error: process.env.NODE_ENV === 'production' ? null : error.message
+        });
     }
 };
 
-// Use database connection middleware for all API routes (EXCEPT stripe webhooks which already handled)
+// Use database connection middleware for all API routes
 app.use('/api', (req, res, next) => {
     if (req.path === '/stripe') return next();
     return ensureDBConnection(req, res, next);

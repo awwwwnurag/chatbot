@@ -1,30 +1,23 @@
 // server/configs/db.js
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 const connectDB = async () => {
-    if (isConnected) {
-        console.log('Using existing database connection');
+    // 1 = connected, 2 = connecting
+    if (mongoose.connection.readyState >= 1) {
         return;
     }
 
     try {
-        mongoose.connection.on('connected', () => {
-            isConnected = true;
-            console.log('MongoDB connected successfully');
+        mongoose.set('strictQuery', false);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
         });
-
-        mongoose.connection.on('error', (err) => {
-            console.error('MongoDB connection error:', err);
-        });
-
-        await mongoose.connect(process.env.MONGODB_URI);
-        isConnected = true;
+        console.log('MongoDB connected successfully');
     } catch (error) {
         console.error('Error connecting to MongoDB:', error.message);
-        throw error; // Rethrow to let the caller handle it
+        throw error;
     } 
-};  
+};
+  
 
 export default connectDB;
