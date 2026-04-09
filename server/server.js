@@ -62,24 +62,28 @@ app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
 
-// SERVE CLIENT SIDE FILES (Only if dist exists)
-const distPath = path.join(__dirname, '../client/dist');
-app.use(express.static(distPath));
-
-// Fallback for SPA routing - only if not an API route
-app.get(/(.*)/, (req, res) => {
-    if (req.path.startsWith('/api')) {
-        return res.status(404).json({ success: false, message: 'API endpoint not found' });
-    }
+// For Vercel deployment, serve the React app
+if (process.env.NODE_ENV === 'production') {
+    // Serve static files from the client build
+    const distPath = path.join(__dirname, '../client/dist');
+    app.use(express.static(distPath));
     
-    const indexPath = path.join(distPath, 'index.html');
-    res.sendFile(indexPath, (err) => {
-        if (err) {
-            // If file doesn't exist (e.g. on Vercel standalone server deployment), just send a message
-            res.status(200).send('Athena AI API is active. Please use the frontend to interact.');
+    // Fallback for SPA routing
+    app.get('*', (req, res) => {
+        if (req.path.startsWith('/api')) {
+            return res.status(404).json({ success: false, message: 'API endpoint not found' });
         }
+        res.sendFile(path.join(distPath, 'index.html'));
     });
-});
+} else {
+    // Development fallback
+    app.get('*', (req, res) => {
+        if (req.path.startsWith('/api')) {
+            return res.status(404).json({ success: false, message: 'API endpoint not found' });
+        }
+        res.status(200).send('Athena AI API is active. Please use the frontend to interact.');
+    });
+}
 
 const PORT = process.env.PORT || 4000;
 
