@@ -16,7 +16,7 @@ const EmptyState = ({ setPrompt }) => {
                 <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
                     Unlock your creativity with Athena
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 text-lg">
+                <p className="text-[var(--text-muted)] text-lg">
                     Ask me anything or explore what others are creating.
                 </p>
             </div>
@@ -29,7 +29,7 @@ const EmptyState = ({ setPrompt }) => {
                         onClick={() => setPrompt(text)}
                         className="p-4 text-left rounded-xl bg-black/5 dark:bg-white/5 backdrop-blur-md border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 hover:border-purple-500/50 dark:hover:border-purple-500/30 transition-all duration-300 group shadow-sm hover:shadow-md"
                     >
-                        <p className="text-gray-700 dark:text-gray-200 text-sm font-medium group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
+                        <p className="text-[var(--text-main)] text-sm font-medium group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                             {text}
                         </p>
                     </button>

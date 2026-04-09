@@ -81,7 +81,7 @@ app.get(/(.*)/, (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Export app for Vercel
 export default app;

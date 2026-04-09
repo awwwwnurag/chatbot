@@ -8,7 +8,8 @@ if (!apiKey) {
 
 const openai = new OpenAI({
     apiKey: apiKey || 'missing-key', // Ensure it doesn't crash during construction
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    dangerouslyAllowBrowser: false
 });
 
 export default openai;

@@ -13,13 +13,21 @@ const Message = ({ message }) => {
     <div>
       {message.role === "user" ? (
         <div className='flex items-start justify-end my-4 gap-2 animate-fade-in'>
-          <div className='flex flex-col gap-1 p-3 px-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-sm shadow-md max-w-2xl transform transition-transform hover:scale-[1.01]'>
+          <div 
+            className='flex flex-col gap-1 p-3 px-5 text-white rounded-2xl rounded-tr-sm shadow-md max-w-2xl transform transition-transform hover:scale-[1.01]'
+            style={{ background: 'var(--accent-gradient)' }}
+          >
             <p className='text-sm font-medium leading-relaxed'>{message.content}</p>
-            <span className='text-[10px] text-purple-200 self-end'>{moment(message.timestamp).format('LT')}</span>
+            <span className='text-[10px] opacity-70 self-end'>{moment(message.timestamp).format('LT')}</span>
           </div>
 
           {/* USER ICON */}
-          <img src={assets.user_icon} className='w-8 h-8 rounded-full border-2 border-purple-500 shadow-sm' alt="user" />
+          <img 
+            src={assets.user_icon} 
+            className='w-8 h-8 rounded-full border-2 shadow-sm' 
+            style={{ borderColor: 'var(--color-primary)' }}
+            alt="user" 
+          />
         </div>
       ) : (
         <div className='flex items-start justify-start my-4 gap-2 animate-fade-in'>
@@ -32,12 +40,12 @@ const Message = ({ message }) => {
                 alt="generated"
               />
             ) : (
-              <div className='text-sm text-gray-800 dark:text-gray-100 leading-relaxed prose dark:prose-invert max-w-none'>
+              <div className='text-sm text-[var(--text-main)] leading-relaxed prose dark:prose-invert max-w-none'>
                 <Markdown>{message.content}</Markdown>
               </div>
             )}
 
-            <span className='text-[10px] text-gray-400 self-end'>{moment(message.timestamp).format('LT')}</span>
+            <span className='text-[10px] text-[var(--text-muted)] self-end'>{moment(message.timestamp).format('LT')}</span>
           </div>
         </div>
       )}

@@ -5,6 +5,10 @@ import User from "../models/User.js";
 import imageKit from "../configs/imageKit.js";
 import openai from "../configs/openai.js";
 
+// Groq client for fallback
+import Groq from "groq-sdk";
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
 // TEXT MESSAGE CONTROLLER
 export const textMessageController = async (req, res) => {
     try {
@@ -27,19 +31,20 @@ export const textMessageController = async (req, res) => {
             isImage: false
         });
 
-        // Gemini model with retry for 429
+        // Use Groq API instead of Gemini
         let choices;
         let retries = 3;
         let delay = 1000;
         while (retries > 0) {
             try {
-                const response = await openai.chat.completions.create({
-                    model: "gemini-2.5-flash",
+                const response = await groq.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
                     messages: [{ role: "user", content: prompt }],
                 });
                 choices = response.choices;
                 break;
             } catch (e) {
+                console.error("Groq API Error:", e);
                 if (e.status === 429 && retries > 1) {
                     await new Promise(res => setTimeout(res, delay));
                     delay *= 2;

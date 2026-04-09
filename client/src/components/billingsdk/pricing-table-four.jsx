@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "./utils";
+import { motion } from "motion/react";
 
 export function PricingTableFour({
   plans,
@@ -32,11 +33,11 @@ export function PricingTableFour({
             {subtitle}
           </p>
         )}
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <h2 className="text-3xl md:text-5xl font-bold text-[var(--text-main)] mb-4">
           {title}
         </h2>
         {description && (
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-[var(--text-muted)] max-w-2xl mx-auto">
             {description}
           </p>
         )}
@@ -74,48 +75,53 @@ export function PricingTableFour({
         </div>
       )}
 
-      {/* Pricing Cards */}
       <div className={cn(
-        "grid gap-6",
-        theme === "minimal" ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-3 lg:grid-cols-3"
+        "grid gap-8 justify-center items-stretch",
+        theme === "minimal" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
       )}>
         {plans.map((plan) => (
-          <div
+          <motion.div
             key={plan.id}
+            whileHover={{ 
+              rotateX: 7, 
+              rotateY: -7, 
+              scale: 1.02,
+              z: 30
+            }}
+            initial={{ perspective: 1000 }}
             className={cn(
-              "relative rounded-2xl border bg-white dark:bg-gray-800 p-8 shadow-sm transition-all hover:shadow-lg",
+              "relative premium-card col-hover p-8 md:p-10 flex flex-col min-w-[320px] max-w-[400px] cursor-target",
               plan.popular
-                ? "border-purple-500 dark:border-purple-400 ring-2 ring-purple-500/20 dark:ring-purple-400/20"
-                : "border-gray-200 dark:border-gray-700",
-              theme === "minimal" && "hover:border-purple-300 dark:hover:border-purple-600"
+                ? "border-indigo-500/50 ring-4 ring-indigo-500/5 dark:bg-indigo-500/5 shadow-indigo-500/10"
+                : "border-slate-200 dark:border-white/5",
             )}
           >
             {/* Popular Badge */}
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/30">
                   {plan.badge || "Most Popular"}
                 </span>
               </div>
             )}
 
             {/* Plan Header */}
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="text-center mb-6 pointer-events-none">
+              <h3 className="text-xl font-semibold text-[var(--text-main)] mb-2">
                 {plan.name}
               </h3>
               <div className="flex items-baseline justify-center">
-                <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                <span className="text-4xl font-bold text-[var(--text-main)]">
                   ${plan.price}
                 </span>
-                <span className="text-gray-600 dark:text-gray-400 ml-1">
+                <span className="text-[var(--text-muted)] ml-1">
                   /{plan.credits} credits
                 </span>
               </div>
             </div>
 
             {/* Features */}
-            <ul className="space-y-3 mb-8">
+            <ul className="space-y-3 mb-8 pointer-events-none">
               {plan.features.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <svg
@@ -131,7 +137,7 @@ export function PricingTableFour({
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">
+                  <span className="text-[var(--text-main)] text-sm">
                     {feature}
                   </span>
                 </li>
@@ -151,7 +157,7 @@ export function PricingTableFour({
             >
               Choose {plan.name}
             </button>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

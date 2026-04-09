@@ -163,7 +163,7 @@ export const getUser = async (req, res) => {
 };
 
 
-//api to get published image
+// api to get published image
 export const getPublishedImages=async(req,res)=>{
   try{
     const publishedImageMessages= await Chat.aggregate([
@@ -190,3 +190,49 @@ export const getPublishedImages=async(req,res)=>{
 
   }
 }
+
+// CHANGE PASSWORD
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Incorrect current password" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// DEACTIVATE ACCOUNT
+export const deactivateAccount = async (req, res) => {
+  try {
+    await Chat.deleteMany({ userId: req.user._id });
+    await User.findByIdAndDelete(req.user._id);
+    res.json({ success: true, message: "Account deactivated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// UPDATE USER PREFERENCES
+export const updatePreferences = async (req, res) => {
+  try {
+    const { preferences } = req.body;
+    const user = await User.findById(req.user._id);
+
+    user.preferences = { ...user.preferences, ...preferences };
+    await user.save();
+
+    res.json({ success: true, message: "Preferences updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

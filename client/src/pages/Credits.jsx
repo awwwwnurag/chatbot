@@ -52,7 +52,7 @@ const Credits = () => {
 
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="h-full py-12 px-4 overflow-y-auto custom-scrollbar">
       <PricingTableFour
         plans={plans}
         title="Choose Your Perfect Plan"

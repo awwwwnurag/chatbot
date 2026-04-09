@@ -1,151 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, User2, LogOut, Mail, Star, Calendar, Shield, Pencil, X, Save } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import ProfileDropdown from "../components/ProfileDropdown";
-
-// ─── Avatar Data ─────────────────────────────────────────────────────────────
-
-const AVATAR_RGB = {
-  1: "255, 0, 91",
-  2: "255, 125, 16",
-  3: "137, 252, 179",
-  4: "96, 165, 250",
-  5: "168, 85, 247",
-  6: "34, 211, 238",
-};
-
-const avatarSVGs = [
-  // Avatar 1 – Fiery red
-  {
-    id: 1,
-    alt: "Blaze",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av1" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av1)">
-          <rect fill="#ff005b" height="36" width="36" />
-          <rect fill="#ffb238" height="36" rx="6" transform="translate(9 -5) rotate(219 18 18) scale(1)" width="36" x="0" y="0" />
-          <g transform="translate(4.5 -4) rotate(9 18 18)">
-            <path d="M15 19c2 1 4 1 6 0" fill="none" stroke="#000" strokeLinecap="round" />
-            <rect fill="#000" height="2" rx="1" width="1.5" x="10" y="14" />
-            <rect fill="#000" height="2" rx="1" width="1.5" x="24" y="14" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-  // Avatar 2 – Dark orange
-  {
-    id: 2,
-    alt: "Shadow",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av2" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av2)">
-          <rect fill="#ff7d10" height="36" width="36" />
-          <rect fill="#0a0310" height="36" rx="6" transform="translate(5 -1) rotate(55 18 18) scale(1.1)" width="36" x="0" y="0" />
-          <g transform="translate(7 -6) rotate(-5 18 18)">
-            <path d="M15 20c2 1 4 1 6 0" fill="none" stroke="#fff" strokeLinecap="round" />
-            <rect fill="#fff" height="2" rx="1" width="1.5" x="14" y="14" />
-            <rect fill="#fff" height="2" rx="1" width="1.5" x="20" y="14" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-  // Avatar 3 – Night sky
-  {
-    id: 3,
-    alt: "Cosmos",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av3" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av3)">
-          <rect fill="#0a0310" height="36" width="36" />
-          <rect fill="#ff005b" height="36" rx="36" transform="translate(-3 7) rotate(227 18 18) scale(1.2)" width="36" x="0" y="0" />
-          <g transform="translate(-3 3.5) rotate(7 18 18)">
-            <path d="M13,21 a1,0.75 0 0,0 10,0" fill="#fff" />
-            <rect fill="#fff" height="2" rx="1" width="1.5" x="12" y="14" />
-            <rect fill="#fff" height="2" rx="1" width="1.5" x="22" y="14" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-  // Avatar 4 – Mint green
-  {
-    id: 4,
-    alt: "Mint",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av4" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av4)">
-          <rect fill="#d8fcb3" height="36" width="36" />
-          <rect fill="#89fcb3" height="36" rx="6" transform="translate(9 -5) rotate(219 18 18) scale(1)" width="36" x="0" y="0" />
-          <g transform="translate(4.5 -4) rotate(9 18 18)">
-            <path d="M15 19c2 1 4 1 6 0" fill="none" stroke="#000" strokeLinecap="round" />
-            <rect fill="#000" height="2" rx="1" width="1.5" x="10" y="14" />
-            <rect fill="#000" height="2" rx="1" width="1.5" x="24" y="14" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-  // Avatar 5 – Purple
-  {
-    id: 5,
-    alt: "Nebula",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av5" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av5)">
-          <rect fill="#a855f7" height="36" width="36" />
-          <rect fill="#1e0040" height="36" rx="6" transform="translate(6 -3) rotate(135 18 18) scale(1.1)" width="36" x="0" y="0" />
-          <g transform="translate(2 -2) rotate(-5 18 18)">
-            <path d="M14 20c1.5 1.5 6.5 1.5 8 0" fill="none" stroke="#fff" strokeLinecap="round" />
-            <rect fill="#fff" height="2.5" rx="1" width="2" x="12" y="13" />
-            <rect fill="#fff" height="2.5" rx="1" width="2" x="22" y="13" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-  // Avatar 6 – Cyan
-  {
-    id: 6,
-    alt: "Aurora",
-    svg: (
-      <svg fill="none" height="40" viewBox="0 0 36 36" width="40" xmlns="http://www.w3.org/2000/svg">
-        <mask id="av6" maskUnits="userSpaceOnUse" width="36" height="36" x="0" y="0">
-          <rect fill="#fff" height="36" rx="72" width="36" />
-        </mask>
-        <g mask="url(#av6)">
-          <rect fill="#083344" height="36" width="36" />
-          <rect fill="#22d3ee" height="36" rx="20" transform="translate(0 8) rotate(160 18 18) scale(1.15)" width="36" x="0" y="0" />
-          <g transform="translate(1 -2) rotate(3 18 18)">
-            <path d="M13 20c2 2 8 2 10 0" fill="none" stroke="#083344" strokeLinecap="round" strokeWidth="1.2" />
-            <rect fill="#083344" height="2.5" rx="1.2" width="2" x="12" y="13" />
-            <rect fill="#083344" height="2.5" rx="1.2" width="2" x="22" y="13" />
-          </g>
-        </g>
-      </svg>
-    ),
-  },
-];
-
-// ─── Animation Variants ───────────────────────────────────────────────────────
+import { AVATAR_RGB, avatarSVGs } from "../assets/avatars";
 
 const containerVariants = {
   initial: { opacity: 0 },
@@ -162,56 +21,57 @@ const sectionVariants = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 const Profile = () => {
-  const { user, setUser, theme, navigate, token, axios, setToken } = useAppContext();
+  const { user, setUser, theme, navigate, token, axios, setToken, userAvatarId, setUserAvatarId } = useAppContext();
   const shouldReduceMotion = useReducedMotion();
 
-  // Avatar state — persisted in localStorage
-  const savedAvatarId = parseInt(localStorage.getItem("userAvatarId") || "1", 10);
-  const defaultAvatar = avatarSVGs.find((a) => a.id === savedAvatarId) || avatarSVGs[0];
+  const currentAvatar = avatarSVGs.find((a) => a.id === userAvatarId) || avatarSVGs[0];
 
-  const [selectedAvatar, setSelectedAvatar] = useState(defaultAvatar);
-  const [pendingAvatar, setPendingAvatar] = useState(defaultAvatar);
+  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
+  const [pendingAvatar, setPendingAvatar] = useState(currentAvatar);
   const [editingName, setEditingName] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
   const [newName, setNewName] = useState(user?.name || "");
+  const [newEmail, setNewEmail] = useState(user?.email || "");
 
-  const rgb = AVATAR_RGB[selectedAvatar.id];
+  // Sync state if global avatar changes
+  useEffect(() => {
+    setSelectedAvatar(currentAvatar);
+    setPendingAvatar(currentAvatar);
+  }, [userAvatarId, currentAvatar]);
 
-  // Confirm avatar change
   const handleSaveAvatar = () => {
-    setSelectedAvatar(pendingAvatar);
-    localStorage.setItem("userAvatarId", String(pendingAvatar.id));
+    setUserAvatarId(pendingAvatar.id);
     toast.success(`Avatar changed to ${pendingAvatar.alt}!`);
   };
 
-  // Save display name
   const handleSaveName = async () => {
     if (!newName.trim() || newName.trim().length < 2) {
       toast.error("Name must be at least 2 characters");
       return;
     }
     try {
-      const { data } = await axios.post(
-        "/api/user/update-name",
-        { name: newName.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (data.success) {
-        setUser((prev) => ({ ...prev, name: newName.trim() }));
-        toast.success("Name updated!");
-      } else {
-        // Optimistic update even if backend route doesn't exist yet
-        setUser((prev) => ({ ...prev, name: newName.trim() }));
-        toast.success("Name updated!");
-      }
-    } catch {
-      // Optimistic update
       setUser((prev) => ({ ...prev, name: newName.trim() }));
-      toast.success("Name updated locally!");
+      toast.success("Name updated!");
+    } catch {
+      toast.error("Failed to update name");
     }
     setEditingName(false);
+  };
+
+  const handleSaveEmail = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    try {
+      setUser((prev) => ({ ...prev, email: newEmail.trim() }));
+      toast.success("Email updated!");
+    } catch {
+      toast.error("Failed to update email");
+    }
+    setEditingEmail(false);
   };
 
   const logout = () => {
@@ -221,14 +81,15 @@ const Profile = () => {
     navigate("/");
   };
 
-  const memberSince = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
-    : "Member";
+  // Robust date formatting
+  const memberSince = (user?.createdAt && !isNaN(new Date(user.createdAt).getTime()))
+    ? new Date(user.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })
+    : new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
 
   const avatarChanged = pendingAvatar.id !== selectedAvatar.id;
 
   return (
-    <div className="min-h-screen py-10 px-4 flex flex-col items-center gap-8">
+    <div className="h-full py-10 px-4 flex flex-col items-center gap-8 overflow-y-auto custom-scrollbar">
       {/* ── Page Title ── */}
       <motion.div
         variants={sectionVariants}
@@ -239,20 +100,11 @@ const Profile = () => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold gradient-text mb-1">My Profile</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-[var(--text-muted)] font-medium">
               Manage your identity &amp; avatar
             </p>
           </div>
-          <ProfileDropdown
-            data={{
-              name: user?.name || "User",
-              email: user?.email || "user@example.com",
-              avatar: user?.avatar || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/profile-mjss82WnWBRO86MHHGxvJ2TVZuyrDv.jpeg",
-              subscription: user?.subscription || "PRO",
-              model: user?.model || "Gemini 2.0 Flash",
-            }}
-            onSignOut={logout}
-          />
+          <ProfileDropdown data={user} onSignOut={logout} />
         </div>
       </motion.div>
 
@@ -261,28 +113,31 @@ const Profile = () => {
         variants={sectionVariants}
         initial="initial"
         animate="animate"
+        whileHover={{ rotateX: 2, rotateY: -2, scale: 1.01 }}
         transition={{ delay: 0.05 }}
-        className="w-full max-w-lg glass-card rounded-2xl p-6 flex flex-col gap-5"
+        className="w-full max-w-lg glass-card rounded-2xl p-6 flex flex-col gap-5 cursor-target"
+        style={{ perspective: 1000 }}
       >
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-[var(--text-main)]">
             Account Info
           </h2>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-medium">
+          <span 
+            className="text-xs px-2 py-0.5 rounded-full font-medium"
+            style={{ backgroundColor: 'var(--color-primary-glow)', color: 'var(--color-primary)' }}
+          >
             Active
           </span>
         </div>
 
-        {/* Avatar + name row */}
         <div className="flex items-center gap-4">
-          {/* Mini avatar display */}
-          <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-purple-400/50">
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-              <div className="scale-[2.5] transform">{selectedAvatar.svg}</div>
-            </div>
+          <div 
+            className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 ring-2 flex items-center justify-center bg-gray-100 dark:bg-gray-800"
+            style={{ ringColor: 'var(--color-primary-glow)' }}
+          >
+              <img src={selectedAvatar.url} className="w-full h-full object-cover scale-[1.1] transform" alt="" />
           </div>
 
-          {/* Name / edit */}
           <div className="flex-1 min-w-0">
             {editingName ? (
               <div className="flex items-center gap-2">
@@ -292,100 +147,135 @@ const Profile = () => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
-                  className="flex-1 text-lg font-semibold bg-transparent border-b-2 border-purple-500 outline-none text-gray-800 dark:text-gray-100 pb-0.5"
+                  className="flex-1 text-lg font-medium bg-transparent border-b-2 border-purple-500 outline-none text-[var(--text-main)] pb-0.5"
                   maxLength={32}
                 />
                 <button
                   onClick={handleSaveName}
-                  className="p-1 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition-colors"
-                  title="Save"
+                  className="p-1 rounded-lg text-white hover:opacity-80 transition-opacity"
+                  style={{ backgroundColor: 'var(--color-primary)' }}
                 >
                   <Save className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => { setEditingName(false); setNewName(user?.name || ""); }}
-                  className="p-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  title="Cancel"
+                  className="p-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2 group">
-                <span className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
+                <span className="text-lg font-medium text-[var(--text-main)] truncate">
                   {user?.name || "User"}
                 </span>
                 <button
                   onClick={() => { setEditingName(true); setNewName(user?.name || ""); }}
                   className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-                  title="Edit name"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500" />
                 </button>
               </div>
             )}
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-sm text-[var(--text-muted)] mt-0.5">
               {selectedAvatar.alt} avatar
             </p>
           </div>
         </div>
 
-        {/* Info grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Email */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5">
+          {/* Email Card */}
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.08)' }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 transition-colors group cursor-target"
+          >
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/40">
               <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
-                {user?.email || "—"}
-              </p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-[var(--text-muted)] font-medium">Email</p>
+              {editingEmail ? (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSaveEmail()}
+                    className="w-full text-xs font-medium bg-transparent border-b border-blue-500 outline-none text-[var(--text-main)] pb-0.5"
+                  />
+                  <button onClick={handleSaveEmail} className="text-blue-500 hover:scale-110"><Save className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => { setEditingEmail(false); setNewEmail(user?.email || ""); }} className="text-gray-400 hover:scale-110"><X className="w-3.5 h-3.5" /></button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-sm font-medium text-[var(--text-main)] truncate">
+                    {user?.email || "—"}
+                  </p>
+                  <button 
+                    onClick={() => { setEditingEmail(true); setNewEmail(user?.email || ""); }}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-black/5"
+                  >
+                    <Pencil className="w-3 h-3 text-gray-400" />
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Credits */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5">
+          {/* Credits Card */}
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02, backgroundColor: 'rgba(245, 158, 11, 0.08)' }}
+            onClick={() => navigate('/credits')}
+            className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 transition-colors cursor-pointer cursor-target"
+          >
             <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40">
               <Star className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Credits</p>
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {user?.credits ?? 0}
-              </p>
+              <p className="text-xs text-[var(--text-muted)] font-medium">Credits</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-[var(--text-main)]">
+                  {user?.credits ?? 0}
+                </p>
+                <span className="text-[10px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Buy</span>
+              </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Member since */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5">
+          {/* Member Since Card */}
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02, backgroundColor: 'rgba(16, 185, 129, 0.08)' }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 transition-colors cursor-target"
+          >
             <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/40">
               <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Member Since</p>
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+              <p className="text-xs text-[var(--text-muted)] font-medium">Member Since</p>
+              <p className="text-sm font-medium text-[var(--text-main)]">
                 {memberSince}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Role */}
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5">
+          {/* Role Card */}
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02, backgroundColor: 'rgba(139, 92, 246, 0.08)' }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 transition-colors cursor-target"
+          >
             <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/40">
               <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Role</p>
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-200 capitalize">
+              <p className="text-xs text-[var(--text-muted)] font-medium">Role</p>
+              <p className="text-sm font-medium text-[var(--text-main)] capitalize">
                 {user?.role || "user"}
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Logout button */}
         <button
           onClick={logout}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium
@@ -402,94 +292,77 @@ const Profile = () => {
         variants={sectionVariants}
         initial="initial"
         animate="animate"
+        whileHover={{ rotateX: -2, rotateY: 2, scale: 1.01 }}
         transition={{ delay: 0.12 }}
-        className="w-full max-w-lg glass-card rounded-2xl p-6 flex flex-col gap-6"
+        className="w-full max-w-lg glass-card rounded-2xl p-6 flex flex-col gap-6 cursor-target"
+        style={{ perspective: 1000 }}
       >
         <div>
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-[var(--text-main)]">
             Pick Your Avatar
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
             Choose one that represents you
           </p>
         </div>
 
-        {/* Avatar Stage */}
         <div className="flex flex-col items-center gap-4">
-          {/* Large avatar display with animated ring */}
           <div className="relative h-36 w-36">
             <motion.div
               animate={{
-                boxShadow: `0 0 0 2px rgba(${AVATAR_RGB[pendingAvatar.id]}, 0.6), 0 6px 28px rgba(${AVATAR_RGB[pendingAvatar.id]}, 0.22)`,
+                boxShadow: `0 0 0 4px rgba(${AVATAR_RGB[pendingAvatar.id]}, 0.2), 0 0 20px rgba(${AVATAR_RGB[pendingAvatar.id]}, 0.4)`,
+                scale: [1, 1.05, 1],
               }}
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-full"
-              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.45, ease: "easeOut" }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+              className="absolute inset-0 rounded-full"
             />
-            <div className="relative h-full w-full overflow-hidden rounded-full">
+            <div className="relative h-full w-full overflow-hidden rounded-full border-2 border-white/10 shadow-2xl bg-white/5 dark:bg-black/20 p-2">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={pendingAvatar.id}
-                  animate={{ opacity: 1, scale: 1 }}
+                  animate={{ opacity: 1, scale: 1, rotate: [5, -5, 0] }}
                   className="absolute inset-0 flex items-center justify-center"
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+                  exit={{ opacity: 0, scale: 0.9, rotate: -10 }}
+                  initial={{ opacity: 0, scale: 0.9, rotate: 10 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <div className="scale-[3.5] transform">{pendingAvatar.svg}</div>
+                  <img src={pendingAvatar.url} className="w-full h-full object-contain p-2" alt="" />
                 </motion.div>
+ drum
               </AnimatePresence>
             </div>
           </div>
 
-          {/* Avatar name */}
-          <AnimatePresence mode="wait">
-            <motion.span
-              animate={{ opacity: 1 }}
-              className="text-[11px] tracking-[0.12em] text-gray-500 dark:text-gray-400 uppercase font-medium"
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
-              key={pendingAvatar.id}
-              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.16 }}
-            >
-              {pendingAvatar.alt}
-            </motion.span>
-          </AnimatePresence>
-
-          {/* Thumbnail grid */}
           <motion.div
-            animate="animate"
-            className="flex flex-wrap justify-center gap-3"
-            initial="initial"
-            variants={containerVariants}
+            className="flex flex-wrap justify-center gap-4 mt-2"
           >
             {avatarSVGs.map((avatar) => {
               const isPending = pendingAvatar.id === avatar.id;
               const isSaved = selectedAvatar.id === avatar.id;
               return (
                 <motion.button
-                  aria-label={`Select ${avatar.alt}`}
-                  aria-pressed={isPending}
-                  className={[
-                    "relative h-14 w-14 overflow-hidden rounded-xl border transition-all duration-200 ease-out",
-                    isPending
-                      ? "border-purple-400/60 opacity-100 ring-2 ring-purple-500 ring-offset-2 ring-offset-transparent"
-                      : "border-gray-200 dark:border-white/10 opacity-50 hover:opacity-100",
-                  ].join(" ")}
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
                   key={avatar.id}
                   onClick={() => setPendingAvatar(avatar)}
-                  type="button"
-                  variants={thumbnailVariants}
-                  whileHover={shouldReduceMotion ? {} : { scale: 1.08 }}
-                  whileTap={shouldReduceMotion ? {} : { scale: 0.92 }}
+                  className={[
+                    "relative h-16 w-16 overflow-hidden rounded-2xl border-2 transition-all duration-300 cursor-target",
+                    isPending
+                      ? "border-purple-500 shadow-lg shadow-purple-500/20 scale-110"
+                      : "border-gray-200 dark:border-white/10 opacity-60 hover:opacity-100",
+                  ].join(" ")}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="scale-[2.3] transform">{avatar.svg}</div>
+                  <div className="flex items-center justify-center p-3 h-full w-full">
+                    <img src={avatar.url} className="w-full h-full object-contain" alt="" />
                   </div>
                   {isSaved && (
-                    <div className="absolute -right-0.5 -bottom-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-green-500">
-                      <Check aria-hidden="true" className="h-3 w-3 text-white" />
-                    </div>
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 shadow-sm"
+                    >
+                      <Check className="h-3.5 w-3.5 text-white" />
+                    </motion.div>
                   )}
                 </motion.button>
               );
@@ -497,46 +370,23 @@ const Profile = () => {
           </motion.div>
         </div>
 
-        {/* Save avatar button */}
         <motion.button
+          whileHover={avatarChanged ? { scale: 1.02, y: -2 } : {}}
+          whileTap={avatarChanged ? { scale: 0.98 } : {}}
           onClick={handleSaveAvatar}
           disabled={!avatarChanged}
-          whileHover={shouldReduceMotion || !avatarChanged ? {} : { scale: 1.02 }}
-          whileTap={shouldReduceMotion || !avatarChanged ? {} : { scale: 0.98 }}
           className={[
-            "py-3 px-6 rounded-xl text-sm font-semibold transition-all duration-300 w-full",
+            "py-3.5 px-6 rounded-2xl text-sm font-bold tracking-tight transition-all duration-300 w-full cursor-target",
             avatarChanged
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 cursor-pointer"
-              : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600 cursor-not-allowed",
+              ? "text-white shadow-xl shadow-purple-500/20"
+              : "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed",
           ].join(" ")}
+          style={{ 
+            background: avatarChanged ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)' : undefined 
+          }}
         >
-          {avatarChanged ? `Set "${pendingAvatar.alt}" as My Avatar` : "Avatar Saved ✓"}
+          {avatarChanged ? `Confirm "${pendingAvatar.alt}" Selection` : "Current Avatar Active"}
         </motion.button>
-      </motion.div>
-
-      {/* ── STATS CARD ── */}
-      <motion.div
-        variants={sectionVariants}
-        initial="initial"
-        animate="animate"
-        transition={{ delay: 0.18 }}
-        className="w-full max-w-lg glass-card rounded-2xl p-6"
-      >
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-          Activity Overview
-        </h2>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          {[
-            { label: "Total Chats", value: user?.totalChats ?? "—", color: "text-purple-500" },
-            { label: "Credits Left", value: user?.credits ?? 0, color: "text-amber-500" },
-            { label: "Avatar", value: selectedAvatar.alt, color: "text-pink-500" },
-          ].map((stat) => (
-            <div key={stat.label} className="flex flex-col gap-1">
-              <span className={`text-2xl font-bold ${stat.color}`}>{stat.value}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</span>
-            </div>
-          ))}
-        </div>
       </motion.div>
     </div>
   );

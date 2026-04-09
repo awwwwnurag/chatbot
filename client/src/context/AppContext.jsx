@@ -29,8 +29,24 @@ export const AppContextProvider = ({ children }) => {
             return "light";
         }
     });
-     const [mood, setMood] = useState("neutral"); // neutral, energetic, calm
+    const [themeColor, setThemeColor] = useState(() => {
+        try {
+            const stored = localStorage.getItem("themeColor");
+            // violet (default), emerald, ocean, rose, amber
+            return stored || "violet";
+        } catch (e) {
+            return "violet";
+        }
+    });
+    const [mood, setMood] = useState("neutral"); // neutral, energetic, calm
      const [loadingUser, setLoadingUser] = useState(true);
+     const [userAvatarId, setUserAvatarId] = useState(() => {
+        try {
+            return parseInt(localStorage.getItem("userAvatarId") || "1", 10);
+        } catch (e) {
+            return 1;
+        }
+     });
 
     const saveChatsToLocalStorage = (chatArray) => {
         try {
@@ -116,13 +132,23 @@ export const AppContextProvider = ({ children }) => {
 
     // THEME HANDLER
     useEffect(() => {
+        const root = document.documentElement;
         if (theme === "dark") {
-            document.documentElement.classList.add("dark");
+            root.classList.add("dark");
         } else {
-            document.documentElement.classList.remove("dark");
+            root.classList.remove("dark");
         }
         localStorage.setItem("theme", theme);
     }, [theme]);
+
+    useEffect(() => {
+        document.documentElement.setAttribute("data-color", themeColor);
+        localStorage.setItem("themeColor", themeColor);
+    }, [themeColor]);
+
+    useEffect(() => {
+        localStorage.setItem("userAvatarId", String(userAvatarId));
+    }, [userAvatarId]);
 
     // WHEN USER CHANGES → LOAD CHATS
     useEffect(() => {
@@ -158,6 +184,8 @@ export const AppContextProvider = ({ children }) => {
         setSelectedChat,
         theme,
         setTheme,
+        themeColor,
+        setThemeColor,
         mood,
         setMood,
         createNewChat,
@@ -165,7 +193,9 @@ export const AppContextProvider = ({ children }) => {
         fetchUsersChats,
         token,
         setToken,
-        axios
+        axios,
+        userAvatarId,
+        setUserAvatarId
     };
 
     return (

@@ -155,62 +155,85 @@ const ChatBox = () => {
           {/* THREE DOTS LOADING */}
           {loading && (
             <div className='loader flex items-center gap-1.5 my-4 px-4'>
-              <div className='w-2 h-2 rounded-full bg-purple-500 animate-bounce'></div>
-              <div className='w-2 h-2 rounded-full bg-pink-500 animate-bounce'></div>
-              <div className='w-2 h-2 rounded-full bg-purple-500 animate-bounce'></div>
+              <div className='w-2 h-2 rounded-full opacity-70 animate-bounce' style={{ backgroundColor: 'var(--color-primary)' }}></div>
+              <div className='w-2 h-2 rounded-full opacity-50 animate-bounce' style={{ backgroundColor: 'var(--color-primary)' }}></div>
+              <div className='w-2 h-2 rounded-full opacity-70 animate-bounce' style={{ backgroundColor: 'var(--color-primary)' }}></div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Input Box Area - Positioned at bottom but part of the same flow or absolute */}
-      <div className="absolute bottom-0 left-0 w-full p-5 md:p-10 xl:px-30 2xl:pr-40 z-20 bg-gradient-to-t from-white dark:from-[#0f0c29] via-white/80 dark:via-[#0f0c29]/80 to-transparent">
-        {mode == 'image' && (
-          <label className='flex items-center justify-center gap-2 mb-3 text-sm'>
-            <p className='text-xs'>Publish Generated Image to Community</p>
+      {/* Input Box Area - Premium Floating Design */}
+      <div className="absolute bottom-8 left-0 right-0 px-5 md:px-10 xl:px-40 2xl:px-60 z-30 pointer-events-none">
+        <div className="max-w-4xl mx-auto pointer-events-auto">
+          {mode == 'image' && (
+            <div className="flex justify-center mb-4">
+              <label 
+                className='flex items-center gap-2 px-4 py-2 rounded-full liquid-glass text-xs font-semibold text-[var(--text-main)] animate-fade-in'
+              >
+                <input
+                  type="checkbox"
+                  className='cursor-pointer'
+                  style={{ accentColor: 'var(--color-primary)' }}
+                  checked={isPublished}
+                  onChange={(e) => setIsPublished(e.target.checked)}
+                />
+                Publish to Community
+              </label>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 liquid-glass p-1.5 pl-4 rounded-[2rem] shadow-2xl transition-all duration-500 border-white/5 focus-within:ring-2 ring-[var(--color-primary-glow)]">
+            <select
+              onChange={(e) => setMode(e.target.value)}
+              value={mode}
+              className='text-xs font-bold uppercase tracking-wider outline-none p-2.5 px-4 rounded-full cursor-pointer transition-colors'
+              style={{ backgroundColor: 'var(--color-primary-glow)', color: 'var(--color-primary)' }}
+            >
+              <option value="text">Text</option>
+              <option value="image">Image</option>
+            </select>
+
+            <div className="w-px h-6 bg-slate-400/20 dark:bg-white/10"></div>
+
             <input
-              type="checkbox"
-              className='cursor-pointer'
-              checked={isPublished}
-              onChange={(e) => setIsPublished(e.target.checked)}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit(e); } }}
+              value={prompt}
+              type="text"
+              placeholder={mode === 'text' ? "Ask Athena anything..." : "Describe the image you want to create..."}
+              className="flex-1 w-full text-sm outline-none bg-transparent placeholder:text-[var(--text-muted)] text-[var(--text-main)] px-2"
+              required
             />
-          </label>
-        )}
 
-        <div className="flex items-center gap-3 bg-white dark:bg-white/10 backdrop-blur-2xl border border-gray-200 dark:border-white/20 p-3 rounded-full shadow-2xl transition-all duration-300">
-          <select
-            onChange={(e) => setMode(e.target.value)}
-            value={mode}
-            className='text-sm pl-4 pr-2 outline-none bg-transparent font-medium cursor-pointer text-gray-700 dark:text-gray-300'
-          >
-            <option className='text-black dark:text-white bg-white dark:bg-gray-800' value="text">Text</option>
-            <option className='text-black dark:text-white bg-white dark:bg-gray-800' value="image">Image</option>
-          </select>
-
-          <div className="w-px h-6 bg-gray-400/30 dark:bg-white/20 mx-1"></div>
-
-          <input
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSubmit(e); } }}
-            value={prompt}
-            type="text"
-            placeholder="Start your prompt here..."
-            className="flex-1 w-full text-sm outline-none bg-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400 text-gray-800 dark:text-white"
-            required
-          />
-
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onSubmit}
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all"
-          >
-            <img
-              src={loading ? assets.stop_icon : assets.send_icon}
-              alt="send"
-              className="w-5 hover:scale-110 transition-transform opacity-70 hover:opacity-100 dark:opacity-100 dark:invert"
-            />
-          </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={onSubmit}
+              className={`p-3 rounded-full transition-all duration-300 flex items-center justify-center ${loading ? 'bg-slate-200 dark:bg-white/10' : 'hover:scale-110 active:scale-95 shadow-lg'}`}
+              style={{ 
+                backgroundColor: loading ? undefined : 'var(--color-primary)', 
+                boxShadow: loading ? undefined : '0 10px 15px -3px var(--color-primary-glow)' 
+              }}
+            >
+              {loading ? (
+                <img src={assets.stop_icon} alt="stop" className="w-4 h-4" />
+              ) : (
+                <svg 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  className="w-4 h-4 text-white transform rotate-45 -translate-x-0.5" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

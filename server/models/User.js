@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 20,
     },
-
+    preferences: {
+        emailNotifications: { type: Boolean, default: true },
+        pushNotifications: { type: Boolean, default: true },
+    },
 });
 
 userSchema.pre("save", async function (next) {

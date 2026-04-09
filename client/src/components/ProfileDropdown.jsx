@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Settings, CreditCard, FileText, LogOut, User, Cpu } from "lucide-react";
+import { useAppContext } from "../context/AppContext";
+import { avatarSVGs } from "../assets/avatars";
+import { useNavigate } from "react-router-dom";
 
 const SAMPLE_PROFILE_DATA = {
   name: "Eugene An",
@@ -9,9 +12,13 @@ const SAMPLE_PROFILE_DATA = {
   model: "Gemini 2.0 Flash",
 };
 
-const ProfileDropdown = ({ data = SAMPLE_PROFILE_DATA, onSignOut, className = "" }) => {
+const ProfileDropdown = ({ data, onSignOut, className = "" }) => {
+  const { userAvatarId } = useAppContext();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+
+  const selectedAvatar = avatarSVGs.find(a => a.id === userAvatarId) || avatarSVGs[0];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,31 +33,30 @@ const ProfileDropdown = ({ data = SAMPLE_PROFILE_DATA, onSignOut, className = ""
   const menuItems = [
     {
       label: "Profile",
-      href: "#",
+      href: "/profile",
       icon: <User className="w-4 h-4" />,
     },
     {
       label: "Model",
       value: data.model,
-      href: "#",
+      href: "/models",
       icon: <Cpu className="w-4 h-4" />,
     },
     {
       label: "Subscription",
       value: data.subscription,
-      href: "#",
+      href: "/credits",
       icon: <CreditCard className="w-4 h-4" />,
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/settings",
       icon: <Settings className="w-4 h-4" />,
     },
     {
       label: "Terms & Policies",
-      href: "#",
+      href: "/terms",
       icon: <FileText className="w-4 h-4" />,
-      external: true,
     },
   ];
 
@@ -71,8 +77,8 @@ const ProfileDropdown = ({ data = SAMPLE_PROFILE_DATA, onSignOut, className = ""
         </div>
         <div className="relative">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-0.5">
-            <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-zinc-900">
-              <img src={data.avatar} alt={data.name} className="w-full h-full object-cover rounded-full" />
+            <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-zinc-900 flex items-center justify-center">
+               <img src={selectedAvatar.url} className="w-full h-full object-cover scale-[1.1] transform" alt="" />
             </div>
           </div>
         </div>
@@ -82,13 +88,13 @@ const ProfileDropdown = ({ data = SAMPLE_PROFILE_DATA, onSignOut, className = ""
         <div className="absolute right-0 z-20 mt-3 w-72 rounded-2xl p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border border-zinc-200/60 dark:border-zinc-800/60 shadow-xl shadow-zinc-900/5 dark:shadow-zinc-950/20">
           <div className="space-y-1">
             {menuItems.map((item) => (
-              <a
+              <div
                 key={item.label}
-                href={item.href}
-                target={item.external ? "_blank" : undefined}
-                rel={item.external ? "noreferrer" : undefined}
+                onClick={() => {
+                   setIsOpen(false);
+                   navigate(item.href);
+                }}
                 className="flex items-center p-3 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/60 rounded-xl transition-all duration-200 cursor-pointer group hover:shadow-sm border border-transparent hover:border-zinc-200/50 dark:hover:border-zinc-700/50"
-                onClick={() => setIsOpen(false)}
               >
                 <div className="flex items-center gap-2 flex-1 text-zinc-900 dark:text-zinc-100">
                   {item.icon}
@@ -107,7 +113,7 @@ const ProfileDropdown = ({ data = SAMPLE_PROFILE_DATA, onSignOut, className = ""
                     {item.value}
                   </span>
                 )}
-              </a>
+              </div>
             ))}
           </div>
 
