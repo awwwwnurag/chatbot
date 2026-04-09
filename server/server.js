@@ -11,24 +11,36 @@ import messageRouter from './routes/messageRoutes.js';
 import creditRouter from './routes/creditRoutes.js';
 import { stripeWebhooks } from './controllers/webhooks.js';
 
+// --- VERCEL DIAGNOSTICS ---
+process.on('uncaughtException', (err) => {
+    console.error('CRITICAL: Uncaught Exception:', err.message);
+    console.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+if (!process.env.MONGODB_URI) {
+    console.error('FATAL ERROR: MONGODB_URI is not defined in Environment Variables.');
+}
+// --------------------------
+
 const app = express();
 
 // MIDDLEWARE
-// Simpler CORS for Vercel
 app.use(cors({
-    origin: '*', // Start with this to ensure connectivity, then restrict if needed
+    origin: '*', 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Manual handle for pre-flight (OPTIONS) requests
 app.options('*', cors());
 
 // Special handling for Stripe webhooks (must be BEFORE express.json)
 app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
 
-// Global JSON parser
 app.use(express.json());
 
 // Middleware to ensure database connection
@@ -40,13 +52,12 @@ const ensureDBConnection = async (req, res, next) => {
         console.error('DATABASE CONNECTION ERROR:', error.message);
         res.status(500).json({ 
             success: false, 
-            message: 'Database connection failed. Check your MONGODB_URI and IP whitelist.',
+            message: 'Database connection failed. Please check your Vercel logs.',
             error: process.env.NODE_ENV === 'production' ? null : error.message
         });
     }
 };
 
-// Use database connection middleware for all API routes
 app.use('/api', (req, res, next) => {
     if (req.path === '/stripe') return next();
     return ensureDBConnection(req, res, next);
@@ -58,7 +69,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('Athena AI API is active. Proceed to frontend.');
+    res.send('Athena AI API is active. Server time: ' + new Date().toISOString());
 });
 
 // API Routes
@@ -67,16 +78,15 @@ app.use('/api/chat', chatRoutes)
 app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
-// Fallback for undefined API routes
 app.all('/api/*', (req, res) => {
     res.status(404).json({ success: false, message: 'API endpoint not found' });
 });
 
-// Export app for Vercel
+// Export for Vercel
 export default app;
 
-// Only listen if NOT on Vercel
-const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL;
+// Only listen locally
+const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL || process.env.NODE_ENV === 'production';
 if (!isVercel) {
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
