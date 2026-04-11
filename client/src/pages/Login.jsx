@@ -10,8 +10,6 @@ const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
 
   const { navigate, setUser, axios, setToken } = useAppContext();
 
@@ -19,15 +17,6 @@ const Login = () => {
     e.preventDefault();
 
     const url = isFlipped ? "/api/user/register" : "/api/user/login";
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return toast.error("Please enter a valid email address");
-    }
-
-    if (isFlipped && password !== confirmPassword) {
-      return toast.error("Passwords do not match");
-    }
 
     try {
       const { data } = await axios.post(url, { name, email, password });
@@ -57,7 +46,7 @@ const Login = () => {
         <motion.div
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
-          className="relative w-[380px] sm:w-[420px] h-[600px] transform-3d"
+          className="relative w-[380px] sm:w-[420px] h-[550px] preserve-3d"
         >
           {/* Front Side - Login */}
           <div className="absolute inset-0 backface-hidden bg-white/10 dark:bg-black/40 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/10 p-8 flex flex-col items-center shadow-2xl">
@@ -179,18 +168,6 @@ const Login = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-                  required
-                />
-              </div>
-
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-500 transition-colors" />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
                   required
                 />

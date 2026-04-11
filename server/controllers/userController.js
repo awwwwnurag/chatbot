@@ -80,11 +80,6 @@ const generateToken = (id) => {
 // REGISTER USER
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ success: false, message: "Please enter a valid email address" });
-  }
 
   try {
     // Check if user already exists
