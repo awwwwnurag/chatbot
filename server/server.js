@@ -42,7 +42,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.options('/:path*', cors());
+app.options(/.*/, cors());
 
 // Special handling for Stripe webhooks (must be BEFORE express.json)
 app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
@@ -85,11 +85,11 @@ app.use('/api/chat', chatRoutes)
 app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
-app.all('/api/:path*', (req, res) => {
+app.all(/\/api\/.*/, (req, res) => {
     res.status(404).json({ success: false, message: 'API endpoint not found' });
 });
 
-app.all('/:path*', (req, res) => {
+app.use((req, res) => {
     res.status(200).send('API is running...');
 });
 
