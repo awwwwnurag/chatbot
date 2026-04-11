@@ -29,7 +29,6 @@ if (!process.env.MONGODB_URI) {
 console.log('INITIALIZING SERVER...');
 const app = express();
 
-// MIDDLEWARE
 app.use(cors({
     origin: process.env.CLIENT_URL || true, // Reflects the request origin for credentials Support
     credentials: true,
@@ -37,7 +36,13 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.options(/.*/, cors());
+// Request Logger (Helpful for Vercel debugging)
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+app.options('/:path*', cors());
 
 // Special handling for Stripe webhooks (must be BEFORE express.json)
 app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
@@ -80,11 +85,11 @@ app.use('/api/chat', chatRoutes)
 app.use('/api/message', messageRouter)
 app.use('/api/credit', creditRouter)
 
-app.all(/\/api\/.*/, (req, res) => {
+app.all('/api/:path*', (req, res) => {
     res.status(404).json({ success: false, message: 'API endpoint not found' });
 });
 
-app.all(/.*/, (req, res) => {
+app.all('/:path*', (req, res) => {
     res.status(200).send('API is running...');
 });
 
