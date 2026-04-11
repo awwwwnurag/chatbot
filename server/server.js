@@ -26,6 +26,7 @@ if (!process.env.MONGODB_URI) {
 }
 // --------------------------
 
+console.log('INITIALIZING SERVER...');
 const app = express();
 
 // MIDDLEWARE
@@ -46,13 +47,14 @@ app.use(express.json());
 // Middleware to ensure database connection
 const ensureDBConnection = async (req, res, next) => {
     try {
+        console.log(`[${new Date().toISOString()}] Connecting to MongoDB for ${req.path}...`);
         await connectDB();
         next();
     } catch (error) {
         console.error('DATABASE CONNECTION ERROR:', error.message);
         res.status(500).json({ 
             success: false, 
-            message: 'Database connection failed. Please check your Vercel logs.',
+            message: 'Database connection failed. Check Vercel Environment Variables.',
             error: process.env.NODE_ENV === 'production' ? null : error.message
         });
     }
@@ -91,6 +93,8 @@ export default app;
 
 // Only listen locally
 const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL || process.env.NODE_ENV === 'production';
+console.log('Vercel environment detected:', isVercel);
+
 if (!isVercel) {
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
