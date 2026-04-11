@@ -69,7 +69,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('Athena AI API is active. Server time: ' + new Date().toISOString());
+    res.status(200).send('API is running...');
 });
 
 // API Routes
@@ -80,6 +80,10 @@ app.use('/api/credit', creditRouter)
 
 app.all('/api/(.*)', (req, res) => {
     res.status(404).json({ success: false, message: 'API endpoint not found' });
+});
+
+app.all('*', (req, res) => {
+    res.status(200).send('API is running...');
 });
 
 // Export for Vercel
