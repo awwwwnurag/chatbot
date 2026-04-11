@@ -7,7 +7,7 @@ import openai from "../configs/openai.js";
 
 // Groq client for fallback
 import Groq from "groq-sdk";
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'missing-key' });
 
 // TEXT MESSAGE CONTROLLER
 export const textMessageController = async (req, res) => {

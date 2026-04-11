@@ -38,7 +38,7 @@ export const getPlans = async (req, res) => {
     }
 };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'missing-key');
 
 // PURCHASE PLAN
 export const purchasePlan = async (req, res) => {
